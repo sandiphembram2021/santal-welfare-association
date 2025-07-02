@@ -1,6 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { NotificationProvider } from './contexts/NotificationContext';
+import { ChatProvider } from './contexts/ChatContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
@@ -25,6 +27,15 @@ import AlumniPage from './pages/AlumniPage';
 import MentorshipPage from './pages/MentorshipPage';
 import NewsPage from './pages/NewsPage';
 import NewsDetailPage from './pages/NewsDetailPage';
+import GalleryPage from './pages/GalleryPage';
+import StudentHomePage from './pages/StudentHomePage';
+import StudentPortalPage from './pages/StudentPortalPage';
+import AlumniPortalPage from './pages/AlumniPortalPage';
+import RepresentativePortalPage from './pages/RepresentativePortalPage';
+import AdminPortalPage from './pages/AdminPortalPage';
+import AdminLoginPage from './pages/AdminLoginPage';
+import AdminSignupPage from './pages/AdminSignupPage';
+import AdminGuard from './components/AdminGuard';
 import ProfilePage from './pages/ProfilePage';
 import NotFoundPage from './pages/NotFoundPage';
 
@@ -34,11 +45,13 @@ import ProtectedRoute from './components/ProtectedRoute';
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <div className="min-h-screen bg-gray-50 flex flex-col">
-          <Header />
-          <main className="flex-grow">
-            <Routes>
+      <NotificationProvider>
+        <ChatProvider>
+          <Router>
+            <div className="min-h-screen bg-gray-50 flex flex-col">
+              <Header />
+              <main className="flex-grow">
+                <Routes>
               {/* Public Routes */}
               <Route path="/" element={<HomePage />} />
               <Route path="/about" element={<AboutPage />} />
@@ -60,6 +73,18 @@ function App() {
             <Route path="/mentorship" element={<MentorshipPage />} />
             <Route path="/news" element={<NewsPage />} />
             <Route path="/news/:id" element={<NewsDetailPage />} />
+            <Route path="/gallery" element={<GalleryPage />} />
+            <Route path="/student" element={<StudentHomePage />} />
+            <Route path="/student/portal" element={<StudentPortalPage />} />
+            <Route path="/alumni/portal" element={<AlumniPortalPage />} />
+            <Route path="/representative/portal" element={<RepresentativePortalPage />} />
+            <Route path="/admin/portal" element={
+              <AdminGuard>
+                <AdminPortalPage />
+              </AdminGuard>
+            } />
+            <Route path="/admin/login" element={<AdminLoginPage />} />
+            <Route path="/admin/signup" element={<AdminSignupPage />} />
 
               {/* Protected Routes */}
               <Route
@@ -78,6 +103,8 @@ function App() {
           <Footer />
         </div>
       </Router>
+        </ChatProvider>
+      </NotificationProvider>
     </AuthProvider>
   );
 }

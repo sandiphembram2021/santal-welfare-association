@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, TrendingUp, Users, MapPin, Clock, AlertCircle } from 'lucide-react';
+import { Calendar, TrendingUp, Users, MapPin, Clock, AlertCircle, Download, FileText, BookOpen, Eye } from 'lucide-react';
 import { useEvents } from '../hooks/useEvents';
 import EventFilters from '../components/EventFilters';
 import EventCard from '../components/EventCard';
@@ -12,6 +12,51 @@ const EventsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [registering, setRegistering] = useState(false);
   const [notification, setNotification] = useState(null);
+  const [activeTab, setActiveTab] = useState('events');
+
+  // Magazine data
+  const magazines = [
+    {
+      id: 1,
+      title: 'BERA TARAS 2016',
+      subtitle: 'Annual E-Magazine',
+      year: '2016',
+      description: 'Our annual magazine featuring student articles, cultural events, academic achievements, and community stories from 2016.',
+      coverImage: '/api/placeholder/300/400',
+      pdfPath: '/assets/BERA TARAS 2016 e-magazine.pdf',
+      fileSize: '15.2 MB',
+      pages: 48,
+      downloads: 1250,
+      featured: true,
+      highlights: [
+        'Annual Picnic Coverage',
+        'Student Achievement Stories',
+        'Cultural Event Photos',
+        'Alumni Success Stories',
+        'Technical Articles'
+      ]
+    },
+    {
+      id: 2,
+      title: 'BERA TARAS 2015',
+      subtitle: 'Annual E-Magazine',
+      year: '2015',
+      description: 'A comprehensive collection of memories, achievements, and stories from the SESWA community in 2015.',
+      coverImage: '/api/placeholder/300/400',
+      pdfPath: '/assets/BERA TARAS 2015 e-magazine.pdf',
+      fileSize: '12.8 MB',
+      pages: 42,
+      downloads: 980,
+      featured: false,
+      highlights: [
+        'Freshers Welcome 2015',
+        'Technical Workshop Reports',
+        'Cultural Program Highlights',
+        'Academic Excellence Awards',
+        'Community Service Projects'
+      ]
+    }
+  ];
 
   const handleEventClick = (event) => {
     setSelectedEvent(event);
@@ -64,6 +109,29 @@ const EventsPage = () => {
     }
   };
 
+  const handleDownloadMagazine = (magazine) => {
+    // Create a temporary link element to trigger download
+    const link = document.createElement('a');
+    link.href = magazine.pdfPath;
+    link.download = `${magazine.title.replace(/\s+/g, '_')}.pdf`;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Show success notification
+    setNotification({
+      type: 'success',
+      message: `${magazine.title} download started!`
+    });
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  const handleViewMagazine = (magazine) => {
+    // Open PDF in new tab for viewing
+    window.open(magazine.pdfPath, '_blank');
+  };
+
   // Mock statistics for now
   const stats = [
     { icon: Calendar, label: 'Total Events', value: pagination.total || '25+', color: 'text-primary-600' },
@@ -78,12 +146,42 @@ const EventsPage = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-heading font-bold text-gray-900 mb-4">
-            Events & Activities
+            Events & Publications
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Join our workshops, seminars, and community events. Learn new skills,
-            network with peers, and grow your career with SESWA.
+            Join our workshops, seminars, and community events. Also explore our annual
+            BERA TARAS magazines and publications.
           </p>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="bg-white rounded-lg shadow-md mb-8">
+          <div className="border-b border-gray-200">
+            <nav className="flex space-x-8 px-6">
+              <button
+                onClick={() => setActiveTab('events')}
+                className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'events'
+                    ? 'border-primary-500 text-primary-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <Calendar className="h-4 w-4 mr-2" />
+                Events & Activities
+              </button>
+              <button
+                onClick={() => setActiveTab('magazines')}
+                className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'magazines'
+                    ? 'border-primary-500 text-primary-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <BookOpen className="h-4 w-4 mr-2" />
+                BERA TARAS Magazine
+              </button>
+            </nav>
+          </div>
         </div>
 
         {/* Notification */}

@@ -1,86 +1,32 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Bell, 
-  X, 
-  Calendar, 
-  Award, 
-  Users, 
-  BookOpen, 
+import {
+  Bell,
+  X,
+  Calendar,
+  Award,
+  Users,
+  BookOpen,
   Briefcase,
   AlertCircle,
   CheckCircle,
   Info,
   Megaphone
 } from 'lucide-react';
+import { useNotifications } from '../contexts/NotificationContext';
 
 const NotificationDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState([]);
   const dropdownRef = useRef(null);
 
-  // Mock notifications data
-  const mockNotifications = [
-    {
-      id: 1,
-      title: 'SESWA Annual Picnic 2025 Registration Open',
-      message: 'Early bird registration now available with special discounts. Register before December 15th.',
-      type: 'announcement',
-      category: 'events',
-      priority: 'high',
-      isRead: false,
-      timestamp: '2024-12-01T10:00:00Z',
-      actionUrl: '/events'
-    },
-    {
-      id: 2,
-      title: 'New Scholarship Deadline Reminder',
-      message: 'SC/ST scholarship applications due December 31st. Don\'t miss this opportunity!',
-      type: 'notification',
-      category: 'scholarships',
-      priority: 'high',
-      isRead: false,
-      timestamp: '2024-11-28T14:30:00Z',
-      actionUrl: '/resources?type=scholarship'
-    },
-    {
-      id: 3,
-      title: 'Alumni Success Story',
-      message: 'Priya Murmu promoted to Senior Engineer at Tesla. Read her inspiring journey.',
-      type: 'news',
-      category: 'alumni',
-      priority: 'medium',
-      isRead: true,
-      timestamp: '2024-11-25T09:15:00Z',
-      actionUrl: '/alumni'
-    },
-    {
-      id: 4,
-      title: 'WBJEE Counselling Sessions',
-      message: 'Free guidance sessions starting next week. Limited seats available.',
-      type: 'announcement',
-      category: 'academic',
-      priority: 'medium',
-      isRead: false,
-      timestamp: '2024-11-20T16:45:00Z',
-      actionUrl: '/news'
-    },
-    {
-      id: 5,
-      title: 'New Partnership with Tech Mahindra',
-      message: 'Exclusive internship opportunities now available for SESWA members.',
-      type: 'news',
-      category: 'partnerships',
-      priority: 'low',
-      isRead: true,
-      timestamp: '2024-11-18T11:20:00Z',
-      actionUrl: '/resources?type=internship'
-    }
-  ];
+  const {
+    notifications,
+    unreadCount,
+    markAsRead,
+    markAllAsRead,
+    removeNotification
+  } = useNotifications();
 
-  useEffect(() => {
-    setNotifications(mockNotifications);
-  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -96,27 +42,7 @@ const NotificationDropdown = () => {
     };
   }, []);
 
-  const unreadCount = notifications.filter(n => !n.isRead).length;
 
-  const markAsRead = (id) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === id 
-          ? { ...notification, isRead: true }
-          : notification
-      )
-    );
-  };
-
-  const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notification => ({ ...notification, isRead: true }))
-    );
-  };
-
-  const removeNotification = (id) => {
-    setNotifications(prev => prev.filter(notification => notification.id !== id));
-  };
 
   const getTypeIcon = (type) => {
     switch (type) {
@@ -222,7 +148,7 @@ const NotificationDropdown = () => {
                           <span className="ml-2 text-xs font-medium text-gray-500 uppercase tracking-wide">
                             {notification.type}
                           </span>
-                          {!notification.isRead && (
+                          {!notification.read && (
                             <span className="ml-2 w-2 h-2 bg-blue-500 rounded-full"></span>
                           )}
                         </div>

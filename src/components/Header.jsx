@@ -1,15 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, User, LogOut, Settings } from 'lucide-react';
+import { Menu, X, User, LogOut, Settings, MessageCircle } from 'lucide-react';
 import Logo from './Logo';
 import { useAuth } from '../contexts/AuthContext';
+import { useNotifications } from '../contexts/NotificationContext';
+import { useChat } from '../contexts/ChatContext';
 import NotificationDropdown from './NotificationDropdown';
+import ProfileView from './ProfileView';
+import ProfileSettings from './ProfileSettings';
+import ChatSystem from './ChatSystem';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [showProfileView, setShowProfileView] = useState(false);
+  const [showProfileSettings, setShowProfileSettings] = useState(false);
+  const [showChatSystem, setShowChatSystem] = useState(false);
   const { user, logout, isAuthenticated } = useAuth();
+  const { unreadCount, createSystemNotification } = useNotifications();
+  const { getUnreadCount } = useChat();
   const navigate = useNavigate();
+
+  // Create welcome notification for new users
+  useEffect(() => {
+    if (user && isAuthenticated) {
+      const hasSeenWelcome = localStorage.getItem(`welcome_${user.id}`);
+      if (!hasSeenWelcome) {
+        createSystemNotification(
+          `Welcome to SESWA, ${user.firstName}!`,
+          'Explore your personalized dashboard and connect with the community.',
+          'normal'
+        );
+        localStorage.setItem(`welcome_${user.id}`, 'true');
+      }
+    }
+  }, [user, isAuthenticated, createSystemNotification]);
 
   const handleLogout = async () => {
     await logout();
@@ -23,12 +48,19 @@ const Header = () => {
     { name: 'Events', href: '/events' },
     { name: 'Resources', href: '/resources' },
     { name: 'Alumni', href: '/alumni' },
+    { name: 'Gallery', href: '/gallery' },
     { name: 'News', href: '/news' },
     { name: 'Colleges', href: '/colleges' },
     { name: 'Contact', href: '/contact' }
   ];
 
   const userNavigation = [
+    { name: 'Profile', href: '/profile', icon: User },
+    { name: 'Settings', href: '/settings', icon: Settings },
+  ];
+
+  const studentNavigation = [
+    { name: 'Student Portal', href: '/student/portal', icon: User },
     { name: 'Profile', href: '/profile', icon: User },
     { name: 'Settings', href: '/settings', icon: Settings },
   ];
@@ -64,6 +96,33 @@ const Header = () => {
                 {/* Notifications */}
                 <NotificationDropdown />
 
+                {/* Chat Indicator */}
+                {isAuthenticated && (
+                  <button
+                    onClick={() => setShowChatSystem(true)}
+                    className="relative p-2 text-gray-600 hover:text-primary-600 transition-colors duration-200"
+                    title="Messages"
+                  >
+                    <MessageCircle className="h-5 w-5" />
+                    {getUnreadCount() > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {getUnreadCount() > 9 ? '9+' : getUnreadCount()}
+                      </span>
+                    )}
+                  </button>
+                )}
+
+                {/* Admin Access Link */}
+                {!isAuthenticated && (
+                  <Link
+                    to="/admin/login"
+                    className="text-sm text-gray-600 hover:text-red-600 font-medium transition-colors duration-200"
+                    title="Admin Access"
+                  >
+                    Admin
+                  </Link>
+                )}
+
                 {/* Profile Dropdown */}
                 <div className="relative ml-3">
                   <button
@@ -91,28 +150,75 @@ const Header = () => {
                         </p>
                       </div>
                       
-                      {userNavigation.map((item) => (
+                      {/* Profile Actions */}
+                      <button
+                        onClick={() => {
+                          setShowProfileView(true);
+                          setIsProfileOpen(false);
+                        }}
+                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        <User className="h-4 w-4 mr-2" />
+                        View Profile
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setShowProfileSettings(true);
+                          setIsProfileOpen(false);
+                        }}
+                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        <Settings className="h-4 w-4 mr-2" />
+                        Settings
+                      </button>
+
+                      {/* Portal Links */}
+                      {user?.userType === 'student' && (
                         <Link
-                          key={item.name}
-                          to={item.href}
+                          to="/student/portal"
                           className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                           onClick={() => setIsProfileOpen(false)}
                         >
-                          <item.icon className="h-4 w-4 mr-2" />
-                          {item.name}
+                          <User className="h-4 w-4 mr-2" />
+                          Student Portal
                         </Link>
-                      ))}
-                      
-                      {user?.role === 'admin' && (
+                      )}
+
+                      {user?.userType === 'alumni' && (
                         <Link
-                          to="/admin"
+                          to="/alumni/portal"
+                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsProfileOpen(false)}
+                        >
+                          <User className="h-4 w-4 mr-2" />
+                          Alumni Portal
+                        </Link>
+                      )}
+
+                      {user?.userType === 'representative' && (
+                        <Link
+                          to="/representative/portal"
+                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsProfileOpen(false)}
+                        >
+                          <User className="h-4 w-4 mr-2" />
+                          Representative Portal
+                        </Link>
+                      )}
+
+                      {user?.userType === 'admin' && (
+                        <Link
+                          to="/admin/portal"
                           className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                           onClick={() => setIsProfileOpen(false)}
                         >
                           <Settings className="h-4 w-4 mr-2" />
-                          Admin Panel
+                          Admin Portal
                         </Link>
                       )}
+                      
+
                       
                       <button
                         onClick={handleLogout}
@@ -241,6 +347,24 @@ const Header = () => {
           </div>
         )}
       </div>
+
+      {/* Profile View Modal */}
+      <ProfileView
+        isOpen={showProfileView}
+        onClose={() => setShowProfileView(false)}
+      />
+
+      {/* Profile Settings Modal */}
+      <ProfileSettings
+        isOpen={showProfileSettings}
+        onClose={() => setShowProfileSettings(false)}
+      />
+
+      {/* Chat System Modal */}
+      <ChatSystem
+        isOpen={showChatSystem}
+        onClose={() => setShowChatSystem(false)}
+      />
     </header>
   );
 };

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Users, 
-  GraduationCap, 
-  Briefcase, 
-  MessageCircle, 
+import {
+  Users,
+  GraduationCap,
+  Briefcase,
+  MessageCircle,
   Calendar,
   ArrowRight,
   CheckCircle,
@@ -12,11 +12,16 @@ import {
   Target,
   Heart,
   BookOpen,
-  TrendingUp
+  TrendingUp,
+  Video
 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import MentorshipProgram from '../components/MentorshipProgram';
 
 const MentorshipPage = () => {
+  const { user, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState('mentee');
+  const [showMentorshipProgram, setShowMentorshipProgram] = useState(false);
 
   const mentorshipStats = [
     { icon: Users, label: 'Active Mentors', value: '150+', color: 'text-blue-600' },
@@ -92,9 +97,36 @@ const MentorshipPage = () => {
             SESWA Mentorship Program
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-            Connecting experienced alumni with current students and young professionals 
-            for career guidance, skill development, and personal growth.
+            Connecting experienced alumni with current students and young professionals
+            for career guidance, skill development, and personal growth through video conferencing.
           </p>
+
+          {/* Video Conference CTA */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+            {isAuthenticated ? (
+              <button
+                onClick={() => setShowMentorshipProgram(true)}
+                className="bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 flex items-center justify-center"
+              >
+                <Video className="h-5 w-5 mr-2" />
+                Start Video Mentorship
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                className="bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 flex items-center justify-center"
+              >
+                Join SESWA for Mentorship
+                <ArrowRight className="h-5 w-5 ml-2" />
+              </Link>
+            )}
+            <Link
+              to="/about"
+              className="border-2 border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200"
+            >
+              Learn More
+            </Link>
+          </div>
         </div>
 
         {/* Statistics */}
@@ -359,6 +391,12 @@ const MentorshipPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Mentorship Program Modal */}
+      <MentorshipProgram
+        isOpen={showMentorshipProgram}
+        onClose={() => setShowMentorshipProgram(false)}
+      />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import axios from 'axios';
+import mockApi from '../services/mockApi';
 
 const AuthContext = createContext();
 
@@ -58,20 +58,21 @@ const authReducer = (state, action) => {
 const initialState = {
   isAuthenticated: false,
   user: null,
-  token: localStorage.getItem('token'),
+  token: localStorage.getItem('mockToken'),
   loading: false,
-  error: null
+  error: null,
+  permissions: [],
+  lastActivity: null
 };
 
 // Auth Provider Component
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-  // Configure axios defaults
+  // Check for existing authentication on app load
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('mockToken');
     if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       // Verify token on app load
       verifyToken();
     }
@@ -80,23 +81,21 @@ export const AuthProvider = ({ children }) => {
   // Set auth token
   const setAuthToken = (token) => {
     if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      localStorage.setItem('token', token);
+      localStorage.setItem('mockToken', token);
     } else {
-      delete axios.defaults.headers.common['Authorization'];
-      localStorage.removeItem('token');
+      localStorage.removeItem('mockToken');
     }
   };
 
   // Verify token
   const verifyToken = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/auth/me`);
+      const response = await mockApi.getCurrentUser();
       dispatch({
         type: 'LOGIN_SUCCESS',
         payload: {
-          user: response.data.data.user,
-          token: localStorage.getItem('token')
+          user: response.data.user,
+          token: localStorage.getItem('mockToken')
         }
       });
     } catch (error) {
@@ -109,26 +108,22 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       dispatch({ type: 'LOGIN_START' });
-      
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {
-        email,
-        password
-      });
 
-      const { token, data } = response.data;
-      
+      const response = await mockApi.login(email, password);
+      const { token, user } = response.data;
+
       setAuthToken(token);
       dispatch({
         type: 'LOGIN_SUCCESS',
         payload: {
-          user: data.user,
+          user: user,
           token
         }
       });
 
       return { success: true, data: response.data };
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Login failed';
+      const errorMessage = error.message || 'Login failed';
       dispatch({
         type: 'LOGIN_FAILURE',
         payload: errorMessage
@@ -141,23 +136,22 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       dispatch({ type: 'LOGIN_START' });
-      
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, userData);
 
-      const { token, data } = response.data;
-      
+      const response = await mockApi.register(userData);
+      const { token, user } = response.data;
+
       setAuthToken(token);
       dispatch({
         type: 'LOGIN_SUCCESS',
         payload: {
-          user: data.user,
+          user: user,
           token
         }
       });
 
       return { success: true, data: response.data };
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Registration failed';
+      const errorMessage = error.message || 'Registration failed';
       dispatch({
         type: 'LOGIN_FAILURE',
         payload: errorMessage
@@ -169,7 +163,7 @@ export const AuthProvider = ({ children }) => {
   // Logout
   const logout = async () => {
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/auth/logout`);
+      await mockApi.logout();
     } catch (error) {
       // Continue with logout even if API call fails
     } finally {
@@ -181,16 +175,16 @@ export const AuthProvider = ({ children }) => {
   // Update profile
   const updateProfile = async (userData) => {
     try {
-      const response = await axios.put(`${import.meta.env.VITE_API_URL}/auth/profile`, userData);
-      
+      const response = await mockApi.updateProfile(userData);
+
       dispatch({
         type: 'UPDATE_USER',
-        payload: response.data.data.user
+        payload: response.data.user
       });
 
       return { success: true, data: response.data };
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Profile update failed';
+      const errorMessage = error.message || 'Profile update failed';
       return { success: false, error: errorMessage };
     }
   };
@@ -198,14 +192,10 @@ export const AuthProvider = ({ children }) => {
   // Change password
   const changePassword = async (currentPassword, newPassword) => {
     try {
-      const response = await axios.put(`${import.meta.env.VITE_API_URL}/auth/password`, {
-        currentPassword,
-        newPassword
-      });
-
+      const response = await mockApi.changePassword(currentPassword, newPassword);
       return { success: true, data: response.data };
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Password change failed';
+      const errorMessage = error.message || 'Password change failed';
       return { success: false, error: errorMessage };
     }
   };

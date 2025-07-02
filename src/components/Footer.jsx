@@ -10,6 +10,7 @@ const Footer = () => {
     { name: 'About Us', href: '/about' },
     { name: 'Events', href: '/events' },
     { name: 'Resources', href: '/resources' },
+    { name: 'Student Portal', href: '/student' },
     { name: 'News', href: '/news' },
     { name: 'Our Colleges', href: '/colleges' },
     { name: 'Contact', href: '/contact' }

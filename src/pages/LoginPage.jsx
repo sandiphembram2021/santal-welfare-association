@@ -102,6 +102,23 @@ const LoginPage = () => {
           </Link>
         </div>
 
+        {/* Admin Portal Access */}
+        <div className="mt-8 bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <h3 className="text-lg font-semibold text-red-900 mb-2">
+            SESWA Governing Body Members
+          </h3>
+          <p className="text-red-700 text-sm mb-4">
+            Restricted access for GB members only
+          </p>
+          <Link
+            to="/admin/login"
+            className="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200"
+          >
+            Admin Portal Access
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
+        </div>
+
         {/* Additional Info */}
         <div className="mt-8 text-center">
           <p className="text-sm text-gray-600">

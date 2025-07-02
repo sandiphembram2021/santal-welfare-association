@@ -1,4 +1,6 @@
 // List of colleges where SESWA has student members
+// Import colleges service for dynamic data
+import collegesService from '../services/collegesService';
 export const colleges = [
   {
     id: 'iiest-shibpur',
@@ -291,9 +293,12 @@ export const getCollegesByType = (type) => {
 
 export const searchColleges = (query) => {
   const searchTerm = query.toLowerCase();
-  return colleges.filter(college => 
+  return colleges.filter(college =>
     college.name.toLowerCase().includes(searchTerm) ||
     college.fullName.toLowerCase().includes(searchTerm) ||
     college.location.toLowerCase().includes(searchTerm)
   );
 };
+
+// Export service for dynamic data fetching
+export { collegesService };

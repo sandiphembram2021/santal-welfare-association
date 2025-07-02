@@ -1,10 +1,81 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Users, Calendar, BookOpen, Award } from 'lucide-react';
+import { ArrowRight, Users, Calendar, BookOpen, Award, ChevronLeft, ChevronRight, X, Camera } from 'lucide-react';
 import Logo from '../components/Logo';
 import homeImage from '../assets/home.jpg';
 
 const HomePage = () => {
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Gallery images data
+  const galleryImages = [
+    {
+      id: 1,
+      src: homeImage,
+      alt: 'SESWA Annual Picnic 2024',
+      title: 'Annual Picnic 2024',
+      description: 'Community gathering at Eco Park with 200+ participants',
+      category: 'events'
+    },
+    {
+      id: 2,
+      src: homeImage,
+      alt: 'Freshers Welcome Ceremony',
+      title: 'Freshers Welcome 2024',
+      description: 'Welcoming new engineering students to SESWA family',
+      category: 'events'
+    },
+    {
+      id: 3,
+      src: homeImage,
+      alt: 'WBJEE Counselling Session',
+      title: 'WBJEE Guidance Session',
+      description: 'Free counselling for engineering entrance exams',
+      category: 'academic'
+    },
+    {
+      id: 4,
+      src: homeImage,
+      alt: 'Cultural Performance',
+      title: 'Santal Cultural Program',
+      description: 'Traditional dance and music performances',
+      category: 'cultural'
+    },
+    {
+      id: 5,
+      src: homeImage,
+      alt: 'Alumni Meet 2024',
+      title: 'Alumni Networking Event',
+      description: 'Successful alumni sharing experiences with students',
+      category: 'alumni'
+    },
+    {
+      id: 6,
+      src: homeImage,
+      alt: 'Scholarship Distribution',
+      title: 'Scholarship Award Ceremony',
+      description: 'Recognizing academic excellence and supporting students',
+      category: 'awards'
+    },
+    {
+      id: 7,
+      src: homeImage,
+      alt: 'Technical Workshop',
+      title: 'Technical Skills Workshop',
+      description: 'Industry experts conducting hands-on training sessions',
+      category: 'academic'
+    },
+    {
+      id: 8,
+      src: homeImage,
+      alt: 'Community Service',
+      title: 'Community Outreach Program',
+      description: 'SESWA members contributing to social causes',
+      category: 'community'
+    }
+  ];
+
   const features = [
     {
       icon: Users,
@@ -30,10 +101,32 @@ const HomePage = () => {
 
   const stats = [
     { number: '500+', label: 'Active Members' },
-    { number: '50+', label: 'Partner Colleges' },
+    { number: '14', label: 'Partner Colleges' },
     { number: '100+', label: 'Events Organized' },
     { number: '200+', label: 'Success Stories' }
   ];
+
+  // Gallery navigation functions
+  const openLightbox = (index) => {
+    setCurrentImageIndex(index);
+    setSelectedImage(galleryImages[index]);
+  };
+
+  const closeLightbox = () => {
+    setSelectedImage(null);
+  };
+
+  const nextImage = () => {
+    const nextIndex = (currentImageIndex + 1) % galleryImages.length;
+    setCurrentImageIndex(nextIndex);
+    setSelectedImage(galleryImages[nextIndex]);
+  };
+
+  const prevImage = () => {
+    const prevIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
+    setCurrentImageIndex(prevIndex);
+    setSelectedImage(galleryImages[prevIndex]);
+  };
 
   return (
     <div className="min-h-screen">
@@ -222,6 +315,119 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
+      {/* Image Gallery Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-gray-900 mb-4">
+              Community Gallery
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Capturing moments from our events, celebrations, and community activities.
+              See the vibrant spirit of SESWA in action.
+            </p>
+          </div>
+
+          {/* Gallery Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            {galleryImages.map((image, index) => (
+              <div
+                key={image.id}
+                className="relative group cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                onClick={() => openLightbox(index)}
+              >
+                <div className="aspect-w-4 aspect-h-3">
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    className="w-full h-64 object-cover"
+                  />
+                </div>
+
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-all duration-300 flex items-center justify-center">
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center text-white p-4">
+                    <Camera className="h-8 w-8 mx-auto mb-2" />
+                    <h3 className="font-semibold text-sm mb-1">{image.title}</h3>
+                    <p className="text-xs opacity-90">{image.description}</p>
+                  </div>
+                </div>
+
+                {/* Category Badge */}
+                <div className="absolute top-3 left-3">
+                  <span className="px-2 py-1 bg-primary-600 text-white text-xs font-medium rounded-full capitalize">
+                    {image.category}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* View More Button */}
+          <div className="text-center">
+            <Link
+              to="/gallery"
+              className="inline-flex items-center bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200"
+            >
+              View Full Gallery
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Lightbox Modal */}
+      {selectedImage && (
+        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
+          <div className="relative max-w-4xl max-h-full">
+            {/* Close Button */}
+            <button
+              onClick={closeLightbox}
+              className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
+            >
+              <X className="h-8 w-8" />
+            </button>
+
+            {/* Navigation Buttons */}
+            <button
+              onClick={prevImage}
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 z-10"
+            >
+              <ChevronLeft className="h-8 w-8" />
+            </button>
+            <button
+              onClick={nextImage}
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 z-10"
+            >
+              <ChevronRight className="h-8 w-8" />
+            </button>
+
+            {/* Image */}
+            <div className="text-center">
+              <img
+                src={selectedImage.src}
+                alt={selectedImage.alt}
+                className="max-w-full max-h-[80vh] object-contain rounded-lg"
+              />
+
+              {/* Image Info */}
+              <div className="mt-4 text-white">
+                <h3 className="text-xl font-semibold mb-2">{selectedImage.title}</h3>
+                <p className="text-gray-300 mb-2">{selectedImage.description}</p>
+                <span className="inline-block px-3 py-1 bg-primary-600 text-white text-sm font-medium rounded-full capitalize">
+                  {selectedImage.category}
+                </span>
+              </div>
+
+              {/* Image Counter */}
+              <div className="mt-4 text-gray-400 text-sm">
+                {currentImageIndex + 1} of {galleryImages.length}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
